@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+
+try:
+    url = r"C:\Users\dsang\source\repos\Machine_Learning_Assignment\Dataset\diabetes.csv"
+    data = pd.read_csv(url)
+    print("Dataset loaded successfully.")
+except Exception as e:
+    print(f"Error loading dataset: {e}")
+    exit()
+
+
+columns_with_zeros = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
+data[columns_with_zeros] = data[columns_with_zeros].replace(0, np.nan)
+data.fillna(data.median(numeric_only=True), inplace=True)
+
+print(f"Missing values handled. Remaining null values:\n{data.isnull().sum()}")
+
+
+scaler = StandardScaler()
+features = data.iloc[:, :-1].astype(float) 
+normalized_features = scaler.fit_transform(features)
+
+
+normalized_features_df = pd.DataFrame(
+    normalized_features, columns=data.columns[:-1]
+)
+
+
+preprocessed_data = pd.concat([normalized_features_df, data['Outcome']], axis=1)
+
+
+try:
+    preprocessed_path = r"C:\Users\dsang\source\repos\Machine_Learning_Assignment\Dataset\preprocessed_data.csv"
+    preprocessed_data.to_csv(preprocessed_path, index=False)
+    print(f"Data preprocessing complete. Preprocessed dataset saved as '{preprocessed_path}'.")
+except Exception as e:
+    print(f"Error saving preprocessed data: {e}")
